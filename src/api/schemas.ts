@@ -48,6 +48,10 @@ const chainLinkSchema: z.ZodType<ChainLinkResponse> = z.lazy(() =>
 
 export const evolutionResponseSchema = z.object({ chain: chainLinkSchema })
 
+export const abilityResponseSchema = z.object({
+  names: z.array(localized({ name: z.string() })),
+})
+
 export const typeResponseSchema = z.object({
   pokemon: z.array(z.object({ pokemon: namedResource })),
 })

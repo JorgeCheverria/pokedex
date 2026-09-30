@@ -1,12 +1,15 @@
 import { Pokeball } from './Header'
 
-type Props = { onClear: () => void }
+type Props = { onClear: () => void; message?: string }
 
-export function EmptyState({ onClear }: Props) {
+export function EmptyState({
+  onClear,
+  message = 'Ningún Pokémon coincide con tu búsqueda.',
+}: Props) {
   return (
     <div className="flex flex-col items-center gap-3 py-16 text-center">
       <Pokeball className="h-14 w-14 text-slate-300 opacity-60 dark:text-slate-600" />
-      <p className="font-medium">Ningún Pokémon coincide con tu búsqueda.</p>
+      <p className="max-w-sm font-medium">{message}</p>
       <button
         type="button"
         onClick={onClear}

@@ -1,18 +1,29 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
+ * Recuerda cuántos elementos había cargados por cada combinación de filtros,
+ * para que al volver del detalle la lista tenga la misma altura y
+ * ScrollRestoration pueda devolver al usuario a su posición.
+ */
+const countCache = new Map<string, number>()
+
+/**
  * Cuenta cuántos elementos mostrar; crece en `pageSize` cada vez que el
  * sentinel entra al viewport. Se reinicia cuando cambia `resetKey`.
  */
 export function useInfiniteCount(total: number, pageSize: number, resetKey = '') {
-  const [count, setCount] = useState(pageSize)
+  const [count, setCount] = useState(() => countCache.get(resetKey) ?? pageSize)
   const [prevKey, setPrevKey] = useState(resetKey)
   const observer = useRef<IntersectionObserver | null>(null)
 
   if (prevKey !== resetKey) {
     setPrevKey(resetKey)
-    setCount(pageSize)
+    setCount(countCache.get(resetKey) ?? pageSize)
   }
+
+  useEffect(() => {
+    countCache.set(resetKey, count)
+  }, [resetKey, count])
 
   const hasMore = count < total
 
@@ -35,3 +46,6 @@ export function useInfiniteCount(total: number, pageSize: number, resetKey = '')
 
   return { count: Math.min(count, total), hasMore, sentinelRef }
 }
+
+/** Solo para tests. */
+export const clearInfiniteCountCache = () => countCache.clear()

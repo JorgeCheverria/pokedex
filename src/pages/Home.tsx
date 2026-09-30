@@ -8,6 +8,7 @@ import { SearchBar } from '../components/SearchBar'
 import { TypeFilter } from '../components/TypeFilter'
 import { usePokemonIdsByType, usePokemonList } from '../hooks/queries'
 import { useInfiniteCount } from '../hooks/useInfiniteCount'
+import { useFavorites } from '../hooks/useFavorites'
 import { usePokedexFilters } from '../hooks/usePokedexFilters'
 import { filterPokemon } from '../utils/filter'
 
@@ -22,14 +23,26 @@ export function Home() {
   const listQuery = usePokemonList()
   const typeQuery = usePokemonIdsByType(filters.type)
 
+  const favorites = useFavorites()
+  const favIds = filters.favOnly ? favorites.ids : null
+
   const typeIds = useMemo(() => (typeQuery.data ? new Set(typeQuery.data) : null), [typeQuery.data])
   const results = useMemo(
     () =>
-      filterPokemon(listQuery.data ?? [], { query: filters.query, typeIds, gen: filters.gen }),
-    [listQuery.data, filters.query, typeIds, filters.gen],
+      filterPokemon(listQuery.data ?? [], {
+        query: filters.query,
+        typeIds,
+        gen: filters.gen,
+        favIds,
+      }),
+    [listQuery.data, filters.query, typeIds, filters.gen, favIds],
   )
 
-  const resetKey = `${filters.query}|${filters.type}|${filters.gen}`
+  const resetKey = `${filters.query}|${filters.type}|${filters.gen}|${filters.favOnly}`
+  const emptyMessage =
+    filters.favOnly && favorites.count === 0
+      ? 'Aún no tienes favoritos. Toca ☆ en cualquier Pokémon para guardarlo.'
+      : undefined
   const { count, hasMore, sentinelRef } = useInfiniteCount(results.length, PAGE_SIZE, resetKey)
 
   const isError = listQuery.isError || typeQuery.isError
@@ -42,8 +55,22 @@ export function Home() {
         <SearchBar value={filters.text} onChange={filters.setText} />
         <TypeFilter selected={filters.type} onSelect={filters.setType} />
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <GenerationSelect value={filters.gen} onChange={filters.setGen} />
-          <p className="text-sm text-slate-500" aria-live="polite">
+          <div className="flex flex-wrap items-center gap-2">
+            <GenerationSelect value={filters.gen} onChange={filters.setGen} />
+            <button
+              type="button"
+              onClick={filters.toggleFavOnly}
+              aria-pressed={filters.favOnly}
+              className={`rounded-full px-3 py-1.5 text-sm font-semibold ring-1 transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-poke-red ${
+                filters.favOnly
+                  ? 'bg-amber-400 text-slate-900 ring-amber-400'
+                  : 'bg-white ring-slate-900/10 hover:ring-2 dark:bg-slate-800/60 dark:ring-white/10'
+              }`}
+            >
+              ★ Solo favoritos
+            </button>
+          </div>
+          <p className="text-sm text-slate-500 dark:text-slate-400" aria-live="polite">
             {!isLoading && listQuery.data && `${results.length} de ${listQuery.data.length} Pokémon`}
             {filters.hasFilters && !isLoading && (
               <button
@@ -63,7 +90,7 @@ export function Home() {
       ) : isLoading ? (
         <div className={GRID}>{skeletons(PAGE_SIZE)}</div>
       ) : results.length === 0 ? (
-        <EmptyState onClear={filters.clear} />
+        <EmptyState onClear={filters.clear} message={emptyMessage} />
       ) : (
         <ul className={GRID}>
           {results.slice(0, count).map((p) => (

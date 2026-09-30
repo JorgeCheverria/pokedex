@@ -1,5 +1,6 @@
 import type { z } from 'zod'
 import {
+  abilityResponseSchema,
   evolutionResponseSchema,
   listResponseSchema,
   pokemonResponseSchema,
@@ -87,6 +88,12 @@ export async function fetchSpecies(id: number): Promise<Species> {
     generation: generationFromName(d.generation.name),
     evolutionChainId: d.evolution_chain ? idFromUrl(d.evolution_chain.url) : null,
   }
+}
+
+/** Nombre localizado de una habilidad ("lightning-rod" → "Pararrayos"). */
+export async function fetchAbilityName(slug: string): Promise<string> {
+  const d = await fetchJson(`/ability/${slug}`, abilityResponseSchema)
+  return pickLocalized(d.names)?.name ?? slug
 }
 
 function toEvolutionNode(link: ChainLinkResponse): EvolutionNode {

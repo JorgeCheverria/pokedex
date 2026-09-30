@@ -3,8 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import * as api from './api/pokeapi'
 import type { Pokemon } from './api/types'
-import { AppRoutes } from './App'
-import { renderWithProviders } from './test/render'
+import { renderApp } from './test/render'
 
 vi.mock('./api/pokeapi')
 
@@ -21,7 +20,7 @@ const fakePokemon = (id: number): Pokemon => ({
   weightKg: 10,
   stats: [],
   abilities: [],
-  artwork: '',
+  artwork: 'art.png',
   artworkShiny: null,
   cry: null,
 })
@@ -36,7 +35,7 @@ beforeEach(() => {
 
 describe('Home', () => {
   test('muestra header, contador y la primera página de tarjetas', async () => {
-    renderWithProviders(<AppRoutes />)
+    renderApp()
 
     expect(screen.getByText('Pokédex')).toBeInTheDocument()
     expect(await screen.findByText('31 de 31 Pokémon')).toBeInTheDocument()
@@ -44,7 +43,7 @@ describe('Home', () => {
   })
 
   test('cada tarjeta muestra número, nombre y tipos en español', async () => {
-    renderWithProviders(<AppRoutes />)
+    renderApp()
 
     const card = await screen.findByRole('link', { name: 'Poke 1 #001' })
     expect(card).toHaveAttribute('href', '/pokemon/1')
@@ -54,7 +53,7 @@ describe('Home', () => {
 
   test('muestra error y reintenta', async () => {
     vi.mocked(api.fetchPokemonList).mockRejectedValueOnce(new Error('offline'))
-    renderWithProviders(<AppRoutes />)
+    renderApp()
 
     await userEvent.click(await screen.findByRole('button', { name: 'Reintentar' }))
 
@@ -64,7 +63,7 @@ describe('Home', () => {
 
 describe('filtros', () => {
   test('busca por nombre con debounce', async () => {
-    renderWithProviders(<AppRoutes />)
+    renderApp()
     await screen.findByText('31 de 31 Pokémon')
 
     await userEvent.type(screen.getByRole('searchbox'), 'PIKA')
@@ -74,7 +73,7 @@ describe('filtros', () => {
   })
 
   test('filtra por tipo y el chip queda activo', async () => {
-    renderWithProviders(<AppRoutes />)
+    renderApp()
     await screen.findByText('31 de 31 Pokémon')
 
     const chip = screen.getByRole('button', { name: 'Fuego' })
@@ -86,7 +85,7 @@ describe('filtros', () => {
   })
 
   test('filtra por generación', async () => {
-    renderWithProviders(<AppRoutes />)
+    renderApp()
     await screen.findByText('31 de 31 Pokémon')
 
     await userEvent.selectOptions(screen.getByRole('combobox'), 'II · Johto')
@@ -96,14 +95,14 @@ describe('filtros', () => {
   })
 
   test('lee los filtros desde la URL', async () => {
-    renderWithProviders(<AppRoutes />, '/?type=fire&gen=1')
+    renderApp('/?type=fire&gen=1')
 
     expect(await screen.findByText('2 de 31 Pokémon')).toBeInTheDocument()
     expect(screen.getByRole('combobox')).toHaveValue('1')
   })
 
   test('sin resultados muestra estado vacío y permite limpiar', async () => {
-    renderWithProviders(<AppRoutes />)
+    renderApp()
     await screen.findByText('31 de 31 Pokémon')
     const search = screen.getByRole('searchbox')
 
@@ -116,14 +115,92 @@ describe('filtros', () => {
   })
 })
 
+describe('favoritos', () => {
+  test('marcar favorito desde la tarjeta, contar en header y filtrar', async () => {
+    renderApp()
+    await screen.findByText('31 de 31 Pokémon')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Agregar Poke 3 a favoritos' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Agregar Poke 2 a favoritos' }))
+
+    expect(screen.getByRole('link', { name: 'Favoritos (2)' })).toBeInTheDocument()
+    expect(JSON.parse(localStorage.getItem('pokedex:favorites')!)).toEqual([2, 3])
+
+    await userEvent.click(screen.getByRole('button', { name: /Solo favoritos/ }))
+
+    expect(await screen.findByText('2 de 31 Pokémon')).toBeInTheDocument()
+    expect(cards().map((c) => c.getAttribute('aria-label'))).toEqual(['Poke 2 #002', 'Poke 3 #003'])
+  })
+
+  test('lee favoritos guardados y muestra mensaje si no hay', async () => {
+    renderApp('/?fav=1')
+
+    expect(await screen.findByText(/Aún no tienes favoritos/)).toBeInTheDocument()
+  })
+
+  test('link del header abre la vista de favoritos', async () => {
+    localStorage.setItem('pokedex:favorites', '[25]')
+    renderApp()
+    await screen.findByText('31 de 31 Pokémon')
+
+    await userEvent.click(screen.getByRole('link', { name: 'Favoritos (1)' }))
+
+    expect(await screen.findByText('1 de 31 Pokémon')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Solo favoritos/ })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  test('ignora datos corruptos en localStorage', async () => {
+    localStorage.setItem('pokedex:favorites', '{"no": "es lista"')
+    renderApp()
+
+    expect(await screen.findByRole('link', { name: 'Favoritos (0)' })).toBeInTheDocument()
+  })
+})
+
+describe('tema', () => {
+  test('el botón alterna modo oscuro y lo guarda', async () => {
+    renderApp()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cambiar a modo oscuro' }))
+
+    expect(document.documentElement).toHaveClass('dark')
+    expect(localStorage.getItem('pokedex:theme')).toBe('"dark"')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cambiar a modo claro' }))
+
+    expect(document.documentElement).not.toHaveClass('dark')
+  })
+})
+
+describe('accesibilidad', () => {
+  test('skip link lleva el foco al contenido', async () => {
+    renderApp()
+
+    await userEvent.click(screen.getByRole('link', { name: 'Saltar al contenido' }))
+
+    expect(screen.getByRole('main')).toHaveFocus()
+  })
+})
+
 describe('rutas', () => {
+  test('ir al detalle y volver mantiene la lista', async () => {
+    renderApp()
+    await userEvent.click(await screen.findByRole('link', { name: 'Poke 5 #005' }))
+    expect(await screen.findByRole('heading', { name: 'Poke 5' })).toBeInTheDocument()
+
+    await userEvent.click(screen.getByText('← Volver'))
+
+    expect(await screen.findByText('31 de 31 Pokémon')).toBeInTheDocument()
+    expect(cards()).toHaveLength(24)
+  })
+
   test('detalle muestra el Pokémon', async () => {
-    renderWithProviders(<AppRoutes />, '/pokemon/6')
+    renderApp('/pokemon/6')
     expect(await screen.findByRole('heading', { name: 'Poke 6' })).toBeInTheDocument()
   })
 
   test('ruta desconocida muestra 404', () => {
-    renderWithProviders(<AppRoutes />, '/nada')
+    renderApp('/nada')
     expect(screen.getByText('404')).toBeInTheDocument()
   })
 })

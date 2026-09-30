@@ -19,6 +19,7 @@ export function usePokedexFilters() {
   const rawType = params.get('type')
   const type = rawType && rawType in TYPES ? rawType : null
   const gen = parseGen(params.get('gen'))
+  const favOnly = params.get('fav') === '1'
 
   const [text, setText] = useState(query)
   const debounced = useDebouncedValue(text)
@@ -44,10 +45,12 @@ export function usePokedexFilters() {
     query,
     type,
     gen,
-    hasFilters: !!(query || type || gen),
+    favOnly,
+    hasFilters: !!(query || type || gen || favOnly),
     setText,
     setType: (t: string | null) => update('type', t === type ? null : t),
     setGen: (g: number | null) => update('gen', g ? String(g) : null),
+    toggleFavOnly: () => update('fav', favOnly ? null : '1'),
     clear: () => {
       setText('')
       setParams({}, { replace: true })

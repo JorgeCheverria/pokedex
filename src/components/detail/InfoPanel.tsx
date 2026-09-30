@@ -1,4 +1,5 @@
 import type { Pokemon, Species } from '../../api/types'
+import { useAbilityName } from '../../hooks/queries'
 import { formatName } from '../../utils/format'
 import { GENERATIONS } from '../../utils/generations'
 
@@ -7,9 +8,19 @@ type Props = { pokemon: Pokemon; species?: Species }
 function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl bg-slate-100 px-3 py-2 text-center dark:bg-slate-800">
-      <dt className="text-xs text-slate-500">{label}</dt>
+      <dt className="text-xs text-slate-500 dark:text-slate-400">{label}</dt>
       <dd className="font-semibold">{value}</dd>
     </div>
+  )
+}
+
+function AbilityChip({ slug, hidden }: { slug: string; hidden: boolean }) {
+  const { data } = useAbilityName(slug)
+  return (
+    <li className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium dark:bg-slate-800">
+      {data ?? formatName(slug)}
+      {hidden && <span className="ml-1.5 text-xs text-slate-500 dark:text-slate-400">(oculta)</span>}
+    </li>
   )
 }
 
@@ -30,16 +41,10 @@ export function InfoPanel({ pokemon, species }: Props) {
         <Fact label="Generación" value={gen ? `${gen.label} · ${gen.region}` : '—'} />
       </dl>
       <div>
-        <h3 className="mb-2 text-sm font-semibold text-slate-500">Habilidades</h3>
+        <h3 className="mb-2 text-sm font-semibold text-slate-500 dark:text-slate-400">Habilidades</h3>
         <ul className="flex flex-wrap gap-2">
           {pokemon.abilities.map((a) => (
-            <li
-              key={a.name}
-              className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium dark:bg-slate-800"
-            >
-              {formatName(a.name)}
-              {a.hidden && <span className="ml-1.5 text-xs text-slate-500">(oculta)</span>}
-            </li>
+            <AbilityChip key={a.name} slug={a.name} hidden={a.hidden} />
           ))}
         </ul>
       </div>

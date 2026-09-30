@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import {
   cleanFlavorText,
+  fetchAbilityName,
   fetchEvolutionChain,
   fetchPokemon,
   fetchPokemonIdsByType,
@@ -121,6 +122,16 @@ describe('fetchers', () => {
 
     expect(tree.id).toBe(172)
     expect(tree.evolvesTo[0].evolvesTo[0]).toEqual({ id: 26, name: 'raichu', evolvesTo: [] })
+  })
+
+  test('fetchAbilityName devuelve el nombre en español', async () => {
+    mockFetch({
+      names: [
+        { name: 'Lightning Rod', language: lang('en') },
+        { name: 'Pararrayos', language: lang('es') },
+      ],
+    })
+    await expect(fetchAbilityName('lightning-rod')).resolves.toBe('Pararrayos')
   })
 
   test('lanza error si la API responde con error HTTP', async () => {

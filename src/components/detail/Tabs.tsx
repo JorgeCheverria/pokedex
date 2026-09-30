@@ -51,7 +51,7 @@ export function Tabs({ tabs, accent }: { tabs: TabItem[]; accent: string }) {
             className={`flex-1 rounded-full px-3 py-2 text-sm font-semibold transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-poke-red ${
               i === active
                 ? 'bg-white shadow dark:bg-slate-700'
-                : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
             }`}
             style={i === active ? { boxShadow: `inset 0 -3px 0 ${accent}` } : undefined}
           >

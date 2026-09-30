@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { formatId, formatName, statLabel } from './format'
 import { GENERATIONS, generationFromName, isInGeneration } from './generations'
-import { TYPE_NAMES, typeInfo } from './typeColors'
+import { readableText, TYPE_NAMES, typeInfo } from './typeColors'
 
 describe('format', () => {
   test('formatId rellena a 3 dígitos', () => {
@@ -47,5 +47,14 @@ describe('typeColors', () => {
 
   test('tipo desconocido usa fallback', () => {
     expect(typeInfo('stellar').label).toBe('???')
+  })
+})
+
+describe('readableText', () => {
+  test('texto oscuro sobre colores claros, blanco sobre oscuros', () => {
+    expect(readableText(typeInfo('electric').color)).toBe('#1e1e24')
+    expect(readableText(typeInfo('ice').color)).toBe('#1e1e24')
+    expect(readableText(typeInfo('ghost').color)).toBe('#ffffff')
+    expect(readableText(typeInfo('dragon').color)).toBe('#ffffff')
   })
 })

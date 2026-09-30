@@ -1,4 +1,4 @@
-import { typeInfo } from '../utils/typeColors'
+import { readableText, typeInfo } from '../utils/typeColors'
 
 type Props = { type: string; size?: 'sm' | 'md' }
 
@@ -7,8 +7,8 @@ export function TypeBadge({ type, size = 'sm' }: Props) {
   const sizing = size === 'sm' ? 'px-2 py-0.5 text-[11px]' : 'px-3 py-1 text-sm'
   return (
     <span
-      className={`${sizing} inline-block rounded-full font-semibold tracking-wide text-white uppercase shadow-sm`}
-      style={{ backgroundColor: color, textShadow: '0 1px 1px rgb(0 0 0 / 0.35)' }}
+      className={`${sizing} inline-block rounded-full font-bold tracking-wide uppercase shadow-sm`}
+      style={{ backgroundColor: color, color: readableText(color) }}
     >
       {label}
     </span>

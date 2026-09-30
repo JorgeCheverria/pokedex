@@ -25,7 +25,7 @@ export function StatBars({ stats }: { stats: Stat[] }) {
     <dl className="flex flex-col gap-2.5">
       {stats.map((s) => (
         <div key={s.name} className="grid grid-cols-[5.5rem_2.5rem_1fr] items-center gap-2">
-          <dt className="text-sm font-medium text-slate-500">{statLabel(s.name)}</dt>
+          <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">{statLabel(s.name)}</dt>
           <dd className="text-right font-mono text-sm font-semibold">{s.value}</dd>
           <dd
             className="h-2.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"

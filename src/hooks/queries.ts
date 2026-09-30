@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import {
+  fetchAbilityName,
   fetchEvolutionChain,
   fetchPokemon,
   fetchPokemonIdsByType,
@@ -16,6 +17,7 @@ export const queryKeys = {
   pokemon: (id: number | string) => ['pokemon', String(id)] as const,
   species: (id: number) => ['species', id] as const,
   evolution: (chainId: number) => ['evolution', chainId] as const,
+  ability: (slug: string) => ['ability', slug] as const,
 }
 
 /** Lista ligera (id + nombre) de los 1025 Pokémon: un solo request. */
@@ -47,6 +49,14 @@ export function useSpecies(id: number | undefined) {
     queryKey: queryKeys.species(id ?? 0),
     queryFn: () => fetchSpecies(id!),
     enabled: !!id,
+    ...STATIC,
+  })
+}
+
+export function useAbilityName(slug: string) {
+  return useQuery({
+    queryKey: queryKeys.ability(slug),
+    queryFn: () => fetchAbilityName(slug),
     ...STATIC,
   })
 }

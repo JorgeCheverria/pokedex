@@ -45,7 +45,9 @@ function DetailView({ id }: { id: number }) {
   const evolution = useEvolutionChain(species.data?.evolutionChainId)
   const { data: list } = usePokemonList()
 
-  useEffect(() => window.scrollTo({ top: 0 }), [id])
+  useEffect(() => {
+    window.scrollTo({ top: 0 })
+  }, [id])
 
   if (pokemon.isError) return <ErrorState onRetry={() => pokemon.refetch()} />
   if (pokemon.isPending) return <DetailSkeleton />

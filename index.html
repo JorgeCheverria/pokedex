@@ -15,6 +15,14 @@
     <link rel="preconnect" href="https://pokeapi.co" />
     <link rel="preconnect" href="https://raw.githubusercontent.com" />
     <title>Pokédex</title>
+    <script>
+      // Aplica el tema antes de pintar para evitar parpadeo (ver useTheme.ts).
+      try {
+        var t = JSON.parse(localStorage.getItem('pokedex:theme'))
+        var dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
+        document.documentElement.classList.toggle('dark', dark)
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

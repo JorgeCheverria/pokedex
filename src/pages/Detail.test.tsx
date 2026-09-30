@@ -3,8 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import * as api from '../api/pokeapi'
 import type { Pokemon, Species } from '../api/types'
-import { AppRoutes } from '../App'
-import { renderWithProviders } from '../test/render'
+import { renderApp } from '../test/render'
 
 vi.mock('../api/pokeapi', async (importOriginal) => {
   const original = await importOriginal<typeof import('../api/pokeapi')>()
@@ -15,6 +14,7 @@ vi.mock('../api/pokeapi', async (importOriginal) => {
     fetchSpecies: vi.fn(),
     fetchEvolutionChain: vi.fn(),
     fetchPokemonIdsByType: vi.fn(),
+    fetchAbilityName: vi.fn(),
   }
 })
 
@@ -54,6 +54,9 @@ beforeEach(() => {
   )
   vi.mocked(api.fetchPokemon).mockImplementation(async (id) => pokemon(Number(id)))
   vi.mocked(api.fetchSpecies).mockImplementation(async (id) => species(id))
+  vi.mocked(api.fetchAbilityName).mockImplementation(async (slug) =>
+    slug === 'lightning-rod' ? 'Pararrayos' : 'Electricidad Estática',
+  )
   vi.mocked(api.fetchEvolutionChain).mockResolvedValue({
     id: 172,
     name: 'pichu',
@@ -62,7 +65,7 @@ beforeEach(() => {
 })
 
 const openPikachu = async () => {
-  renderWithProviders(<AppRoutes />, '/pokemon/25')
+  renderApp('/pokemon/25')
   await screen.findByRole('heading', { name: 'Pikachu' })
 }
 
@@ -75,7 +78,8 @@ describe('Detail', () => {
     expect(screen.getByText('0,4 m')).toBeInTheDocument()
     expect(screen.getByText('6 kg')).toBeInTheDocument()
     expect(screen.getByText('I · Kanto')).toBeInTheDocument()
-    expect(screen.getByText('Lightning Rod').parentElement).toHaveTextContent('(oculta)')
+    expect(await screen.findByText('Pararrayos')).toHaveTextContent(/Pararrayos\s*\(oculta\)/)
+    expect(screen.getByText('Electricidad Estática')).toBeInTheDocument()
   })
 
   test('tab Stats muestra barras y total', async () => {
@@ -127,8 +131,20 @@ describe('Detail', () => {
     expect(screen.getByRole('img', { name: 'Pikachu (shiny)' })).toHaveAttribute('src', 'shiny-25.png')
   })
 
+  test('favorito desde el detalle actualiza el contador del header', async () => {
+    await openPikachu()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Agregar Pikachu a favoritos' }))
+
+    expect(screen.getByRole('button', { name: 'Quitar Pikachu de favoritos' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    expect(screen.getByRole('link', { name: 'Favoritos (1)' })).toBeInTheDocument()
+  })
+
   test('id fuera de rango muestra 404', () => {
-    renderWithProviders(<AppRoutes />, '/pokemon/9999')
+    renderApp('/pokemon/9999')
     expect(screen.getByText('404')).toBeInTheDocument()
   })
 })

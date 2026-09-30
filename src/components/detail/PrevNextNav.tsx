@@ -32,9 +32,9 @@ export function PrevNextNav({ prev, next }: Props) {
     <nav aria-label="Pokémon anterior y siguiente" className="flex gap-3">
       {prev ? (
         <Link to={`/pokemon/${prev.id}`} rel="prev" replace className={linkClass}>
-          <span className="text-xs text-slate-400">← Anterior</span>
+          <span className="text-xs text-slate-500 dark:text-slate-400">← Anterior</span>
           <span className="truncate font-semibold">
-            <span className="font-mono text-slate-400">{formatId(prev.id)}</span> {formatName(prev.name)}
+            <span className="font-mono text-slate-500 dark:text-slate-400">{formatId(prev.id)}</span> {formatName(prev.name)}
           </span>
         </Link>
       ) : (
@@ -42,9 +42,9 @@ export function PrevNextNav({ prev, next }: Props) {
       )}
       {next ? (
         <Link to={`/pokemon/${next.id}`} rel="next" replace className={`${linkClass} items-end text-right`}>
-          <span className="text-xs text-slate-400">Siguiente →</span>
+          <span className="text-xs text-slate-500 dark:text-slate-400">Siguiente →</span>
           <span className="truncate font-semibold">
-            {formatName(next.name)} <span className="font-mono text-slate-400">{formatId(next.id)}</span>
+            {formatName(next.name)} <span className="font-mono text-slate-500 dark:text-slate-400">{formatId(next.id)}</span>
           </span>
         </Link>
       ) : (

@@ -5,7 +5,7 @@ type Props = { value: number | null; onChange: (gen: number | null) => void }
 export function GenerationSelect({ value, onChange }: Props) {
   return (
     <label className="flex items-center gap-2 text-sm font-medium">
-      <span className="text-slate-500">Generación</span>
+      <span className="text-slate-500 dark:text-slate-400">Generación</span>
       <select
         value={value ?? ''}
         onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}

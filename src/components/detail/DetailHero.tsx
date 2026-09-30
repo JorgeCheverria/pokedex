@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Pokemon } from '../../api/types'
 import { formatId } from '../../utils/format'
 import { typeInfo } from '../../utils/typeColors'
+import { FavoriteButton } from '../FavoriteButton'
 import { PokemonImage } from '../PokemonImage'
 import { TypeBadge } from '../TypeBadge'
 
@@ -46,6 +47,7 @@ export function DetailHero({ pokemon, name, genus }: Props) {
             ✨ Shiny
           </button>
         )}
+        <FavoriteButton id={pokemon.id} name={name} className="bg-white/80 shadow-sm dark:bg-slate-900/60" />
       </div>
       <PokemonImage
         key={src}

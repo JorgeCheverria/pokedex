@@ -5,6 +5,7 @@ export type Filters = {
   query: string
   typeIds: ReadonlySet<number> | null
   gen: number | null
+  favIds?: ReadonlySet<number> | null
 }
 
 /** "Mr. Mimé" → "mr-mime" (mismo formato que los nombres de PokéAPI). */
@@ -24,13 +25,14 @@ function matchesQuery(p: PokemonSummary, query: string): boolean {
   return p.name.includes(normalize(query))
 }
 
-/** Aplica búsqueda, tipo y generación; los criterios vacíos no filtran. */
+/** Aplica búsqueda, tipo, generación y favoritos; los criterios vacíos no filtran. */
 export function filterPokemon(list: PokemonSummary[], f: Filters): PokemonSummary[] {
   const query = f.query.trim()
   return list.filter(
     (p) =>
       (!query || matchesQuery(p, query)) &&
       (!f.typeIds || f.typeIds.has(p.id)) &&
-      (!f.gen || isInGeneration(p.id, f.gen)),
+      (!f.gen || isInGeneration(p.id, f.gen)) &&
+      (!f.favIds || f.favIds.has(p.id)),
   )
 }

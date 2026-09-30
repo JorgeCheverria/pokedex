@@ -17,14 +17,14 @@ function EvoCard({ node, current }: { node: EvolutionNode; current: boolean }) {
       }`}
     >
       <PokemonImage src={artworkUrl(node.id)} alt="" className="w-20" />
-      <span className="font-mono text-[11px] text-slate-400">{formatId(node.id)}</span>
+      <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400">{formatId(node.id)}</span>
       <span className="text-sm font-semibold">{formatName(node.name)}</span>
     </Link>
   )
 }
 
 const Arrow = () => (
-  <span aria-hidden="true" className="shrink-0 text-xl text-slate-400">
+  <span aria-hidden="true" className="shrink-0 text-xl text-slate-500 dark:text-slate-400">
     →
   </span>
 )
@@ -53,7 +53,7 @@ function Branch({ node, currentId }: { node: EvolutionNode; currentId: number })
 
 export function EvolutionChain({ chain, currentId }: Props) {
   if (chain.evolvesTo.length === 0) {
-    return <p className="text-center text-slate-500">Este Pokémon no evoluciona.</p>
+    return <p className="text-center text-slate-500 dark:text-slate-400">Este Pokémon no evoluciona.</p>
   }
   return (
     <div className="-mx-4 overflow-x-auto px-4 pb-2">

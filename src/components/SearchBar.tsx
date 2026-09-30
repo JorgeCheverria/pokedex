@@ -6,7 +6,7 @@ export function SearchBar({ value, onChange }: Props) {
       <svg
         aria-hidden="true"
         viewBox="0 0 20 20"
-        className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400"
+        className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-500 dark:text-slate-400"
       >
         <path
           fill="currentColor"
@@ -21,7 +21,7 @@ export function SearchBar({ value, onChange }: Props) {
         aria-label="Buscar Pokémon por nombre o número"
         autoComplete="off"
         spellCheck={false}
-        className="w-full rounded-full border-0 bg-white py-3 pr-4 pl-12 text-base shadow-sm ring-1 ring-slate-900/10 placeholder:text-slate-400 focus:ring-2 focus:ring-poke-red focus:outline-none dark:bg-slate-800/60 dark:ring-white/10"
+        className="w-full rounded-full border-0 bg-white py-3 pr-4 pl-12 text-base shadow-sm ring-1 ring-slate-900/10 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:ring-2 focus:ring-poke-red focus:outline-none dark:bg-slate-800/60 dark:ring-white/10"
       />
     </div>
   )
