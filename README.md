@@ -11,29 +11,34 @@ Pokédex web con los **1025 Pokémon**: búsqueda, filtros por tipo y generació
 ## Funcionalidades
 
 - **Listado con scroll infinito**: carga de 24 en 24, con skeletons mientras llega cada imagen.
-- **Búsqueda** por nombre o número (`#025`). Ignora mayúsculas y acentos y espera 300 ms de pausa (debounce) antes de filtrar.
+- **Búsqueda** por nombre o número (`#025`). Ignora mayúsculas y acentos y espera 300 ms de pausa (debounce) antes de filtrar. `/` enfoca la búsqueda y `Esc` la limpia.
 - **Filtros** por los 18 tipos y las 9 generaciones, combinables entre sí.
 - **Los filtros viven en la URL**, así que se pueden compartir: [`#/?type=dragon`](https://jorgecheverria.github.io/pokedex/#/?type=dragon)
+- **Botón "Volver arriba"**, que aparece al bajar por la lista.
 - **Detalle** de cada Pokémon:
+  - en escritorio, todo en una sola vista de dos columnas; en móvil, organizado en tabs;
   - descripción, categoría, altura, peso y habilidades en español;
   - stats base con barras animadas;
-  - cadena evolutiva con ramas (por ejemplo, las 8 evoluciones de Eevee);
+  - cadena evolutiva con ramas (por ejemplo, las 8 evoluciones de Eevee) y la **condición de cada evolución**: "Nv. 16", "Piedra Agua", "Intercambio", "Amistad (día)";
   - versión shiny y grito del Pokémon.
-- **Navegación** al anterior o siguiente, también con las flechas `←` `→`. Al volver desde el detalle se conserva la posición en la lista.
+- **Navegación** al anterior o siguiente, con miniatura y también con las flechas `←` `→`. Al volver desde el detalle se conserva la posición en la lista.
 - **Favoritos** guardados en el navegador, con un contador en el header y un filtro "Solo favoritos".
 - **Modo claro/oscuro**: sigue al sistema o se elige a mano, y no parpadea al cargar.
 - **Accesibilidad**:
   - contraste WCAG AA, incluido el texto de los badges de tipo;
   - navegación completa por teclado y un enlace "Saltar al contenido";
+  - iconos SVG con nombres accesibles y áreas táctiles de 40 px;
   - respeta `prefers-reduced-motion`.
 
-| Detalle | Evolución | Stats (modo oscuro) |
-|---|---|---|
-| ![Detalle de Charizard](docs/screenshots/detail.png) | ![Cadena evolutiva de Eevee](docs/screenshots/evolution.png) | ![Stats de Dragonite](docs/screenshots/stats.png) |
+| Detalle (escritorio) | Detalle (modo oscuro) |
+|---|---|
+| ![Detalle de Eevee con sus 8 evoluciones y sus condiciones](docs/screenshots/detail.png) | ![Detalle de Charizard en modo oscuro](docs/screenshots/detail-dark.png) |
 
-| Filtro por tipo | Móvil | Móvil (modo oscuro) |
-|---|---|---|
-| ![Filtro tipo Dragón](docs/screenshots/filters.png) | ![Home en móvil](docs/screenshots/mobile-home.png) | ![Detalle en móvil, modo oscuro](docs/screenshots/mobile-detail-dark.png) |
+| Filtro por tipo | Móvil | Móvil: filtro Hada | Móvil (modo oscuro) |
+|---|---|---|---|
+| ![Filtro tipo Dragón](docs/screenshots/filters.png) | ![Home en móvil](docs/screenshots/mobile-home.png) | ![Filtro Hada en móvil](docs/screenshots/mobile-fairy.png) | ![Detalle en móvil, modo oscuro](docs/screenshots/mobile-detail-dark.png) |
+
+La revisión de diseño y UX que guió la versión 1.1 está en [`docs/ux-review.md`](docs/ux-review.md).
 
 ## Stack
 
@@ -43,7 +48,7 @@ Pokédex web con los **1025 Pokémon**: búsqueda, filtros por tipo y generació
 | Estilos | Tailwind CSS 4 |
 | Datos | TanStack Query (caché) + Zod (validación de respuestas) |
 | Rutas | React Router 7 (`createHashRouter` + `ScrollRestoration`) |
-| Tests | Vitest + Testing Library (53 tests) |
+| Tests | Vitest + Testing Library (58 tests) |
 | Lint | oxlint |
 | Deploy | GitHub Actions → GitHub Pages |
 

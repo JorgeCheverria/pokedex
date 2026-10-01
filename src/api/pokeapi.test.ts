@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 import {
   cleanFlavorText,
   fetchAbilityName,
+  toCondition,
   fetchEvolutionChain,
   fetchPokemon,
   fetchPokemonIdsByType,
@@ -121,7 +122,12 @@ describe('fetchers', () => {
     const tree = await fetchEvolutionChain(10)
 
     expect(tree.id).toBe(172)
-    expect(tree.evolvesTo[0].evolvesTo[0]).toEqual({ id: 26, name: 'raichu', evolvesTo: [] })
+    expect(tree.evolvesTo[0].evolvesTo[0]).toEqual({
+      id: 26,
+      name: 'raichu',
+      condition: null,
+      evolvesTo: [],
+    })
   })
 
   test('fetchAbilityName devuelve el nombre en español', async () => {
@@ -142,5 +148,40 @@ describe('fetchers', () => {
   test('lanza error si la respuesta no cumple el schema', async () => {
     mockFetch({ id: 'no-es-numero' })
     await expect(fetchPokemon(1)).rejects.toThrow()
+  })
+})
+
+describe('toCondition', () => {
+  const t = (name: string) => ({ name, url: '' })
+
+  test('etapa base sin detalles devuelve null', () => {
+    expect(toCondition([])).toBeNull()
+    expect(toCondition(undefined)).toBeNull()
+  })
+
+  test('nivel, objeto, intercambio y amistad', () => {
+    expect(toCondition([{ trigger: t('level-up'), min_level: 16 }])).toEqual({ kind: 'level', level: 16 })
+    expect(toCondition([{ trigger: t('use-item'), item: t('water-stone') }])).toEqual({
+      kind: 'item',
+      item: 'water-stone',
+    })
+    expect(toCondition([{ trigger: t('trade'), held_item: t('metal-coat') }])).toEqual({
+      kind: 'trade',
+      item: 'metal-coat',
+    })
+    expect(toCondition([{ trigger: t('level-up'), min_happiness: 160, time_of_day: 'night' }])).toEqual({
+      kind: 'friendship',
+      time: 'night',
+    })
+  })
+
+  test('con varios métodos prefiere el que usa objeto (Leafeon)', () => {
+    expect(
+      toCondition([{ trigger: t('level-up') }, { trigger: t('use-item'), item: t('leaf-stone') }]),
+    ).toEqual({ kind: 'item', item: 'leaf-stone' })
+  })
+
+  test('método desconocido es "other"', () => {
+    expect(toCondition([{ trigger: t('spin') }])).toEqual({ kind: 'other' })
   })
 })

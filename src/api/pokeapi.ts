@@ -1,14 +1,15 @@
 import type { z } from 'zod'
 import {
-  abilityResponseSchema,
   evolutionResponseSchema,
   listResponseSchema,
+  namesResponseSchema,
   pokemonResponseSchema,
   speciesResponseSchema,
   typeResponseSchema,
   type ChainLinkResponse,
+  type EvolutionDetailResponse,
 } from './schemas'
-import type { EvolutionNode, Pokemon, PokemonSummary, Species } from './types'
+import type { EvolutionCondition, EvolutionNode, Pokemon, PokemonSummary, Species } from './types'
 import { artworkUrl } from '../utils/sprites'
 import { generationFromName } from '../utils/generations'
 
@@ -90,16 +91,41 @@ export async function fetchSpecies(id: number): Promise<Species> {
   }
 }
 
-/** Nombre localizado de una habilidad ("lightning-rod" → "Pararrayos"). */
-export async function fetchAbilityName(slug: string): Promise<string> {
-  const d = await fetchJson(`/ability/${slug}`, abilityResponseSchema)
+async function fetchLocalizedName(resource: 'ability' | 'item', slug: string): Promise<string> {
+  const d = await fetchJson(`/${resource}/${slug}`, namesResponseSchema)
   return pickLocalized(d.names)?.name ?? slug
+}
+
+/** Nombre localizado de una habilidad ("lightning-rod" → "Pararrayos"). */
+export const fetchAbilityName = (slug: string) => fetchLocalizedName('ability', slug)
+
+/** Nombre localizado de un objeto ("water-stone" → "Piedra Agua"). */
+export const fetchItemName = (slug: string) => fetchLocalizedName('item', slug)
+
+/**
+ * Traduce los `evolution_details` a una condición simple. Si hay varios
+ * métodos (p. ej. Leafeon: lugar especial en juegos viejos, piedra en los
+ * nuevos) se prefiere el que usa un objeto, que es el vigente.
+ */
+export function toCondition(details: EvolutionDetailResponse[] = []): EvolutionCondition | null {
+  if (details.length === 0) return null
+  const d = details.find((x) => x.item) ?? details[0]
+  const trigger = d.trigger?.name
+  if (trigger === 'trade') return { kind: 'trade', item: d.held_item?.name }
+  if (d.item) return { kind: 'item', item: d.item.name }
+  if (d.min_level) return { kind: 'level', level: d.min_level }
+  if (d.min_happiness) {
+    const time = d.time_of_day === 'day' || d.time_of_day === 'night' ? d.time_of_day : undefined
+    return { kind: 'friendship', time }
+  }
+  return { kind: 'other' }
 }
 
 function toEvolutionNode(link: ChainLinkResponse): EvolutionNode {
   return {
     id: idFromUrl(link.species.url),
     name: link.species.name,
+    condition: toCondition(link.evolution_details),
     evolvesTo: link.evolves_to.map(toEvolutionNode),
   }
 }

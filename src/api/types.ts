@@ -24,8 +24,17 @@ export type Species = {
   evolutionChainId: number | null
 }
 
+/** Cómo se llega a una etapa evolutiva (null en la etapa base). */
+export type EvolutionCondition =
+  | { kind: 'level'; level: number }
+  | { kind: 'item'; item: string }
+  | { kind: 'trade'; item?: string }
+  | { kind: 'friendship'; time?: 'day' | 'night' }
+  | { kind: 'other' }
+
 export type EvolutionNode = {
   id: number
   name: string
+  condition: EvolutionCondition | null
   evolvesTo: EvolutionNode[]
 }

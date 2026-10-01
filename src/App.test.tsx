@@ -88,7 +88,7 @@ describe('filtros', () => {
     renderApp()
     await screen.findByText('31 de 31 Pokémon')
 
-    await userEvent.selectOptions(screen.getByRole('combobox'), 'II · Johto')
+    await userEvent.selectOptions(screen.getByRole('combobox'), 'Gen II · Johto')
 
     expect(await screen.findByText('1 de 31 Pokémon')).toBeInTheDocument()
     expect(cards()[0]).toHaveAccessibleName('Chikorita #152')
@@ -147,6 +147,7 @@ describe('favoritos', () => {
 
     expect(await screen.findByText('1 de 31 Pokémon')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Solo favoritos/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('link', { name: 'Favoritos (1)' })).toHaveAttribute('aria-current', 'page')
   })
 
   test('ignora datos corruptos en localStorage', async () => {
@@ -154,6 +155,24 @@ describe('favoritos', () => {
     renderApp()
 
     expect(await screen.findByRole('link', { name: 'Favoritos (0)' })).toBeInTheDocument()
+  })
+})
+
+describe('búsqueda por teclado', () => {
+  test('"/" enfoca la búsqueda y Escape la limpia', async () => {
+    renderApp()
+    await screen.findByText('31 de 31 Pokémon')
+    const search = screen.getByRole('searchbox')
+
+    await userEvent.keyboard('/')
+    expect(search).toHaveFocus()
+
+    await userEvent.keyboard('pika')
+    expect(await screen.findByText('1 de 31 Pokémon')).toBeInTheDocument()
+
+    await userEvent.keyboard('{Escape}')
+    expect(search).toHaveValue('')
+    expect(await screen.findByText('31 de 31 Pokémon')).toBeInTheDocument()
   })
 })
 
@@ -188,7 +207,7 @@ describe('rutas', () => {
     await userEvent.click(await screen.findByRole('link', { name: 'Poke 5 #005' }))
     expect(await screen.findByRole('heading', { name: 'Poke 5' })).toBeInTheDocument()
 
-    await userEvent.click(screen.getByText('← Volver'))
+    await userEvent.click(screen.getByRole('link', { name: 'Volver' }))
 
     expect(await screen.findByText('31 de 31 Pokémon')).toBeInTheDocument()
     expect(cards()).toHaveLength(24)

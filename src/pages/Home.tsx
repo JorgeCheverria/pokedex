@@ -1,8 +1,10 @@
 import { useMemo } from 'react'
+import { BackToTop } from '../components/BackToTop'
 import { CardSkeleton } from '../components/CardSkeleton'
 import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
 import { GenerationSelect } from '../components/GenerationSelect'
+import { StarIcon } from '../components/icons'
 import { PokemonCard } from '../components/PokemonCard'
 import { SearchBar } from '../components/SearchBar'
 import { TypeFilter } from '../components/TypeFilter'
@@ -54,20 +56,27 @@ export function Home() {
       <div className="flex flex-col gap-3">
         <SearchBar value={filters.text} onChange={filters.setText} />
         <TypeFilter selected={filters.type} onSelect={filters.setType} />
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+          <div className="flex items-center gap-2">
             <GenerationSelect value={filters.gen} onChange={filters.setGen} />
             <button
               type="button"
               onClick={filters.toggleFavOnly}
               aria-pressed={filters.favOnly}
-              className={`rounded-full px-3 py-1.5 text-sm font-semibold ring-1 transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-poke-red ${
+              aria-label="Solo favoritos"
+              className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold ring-1 transition focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-poke-red ${
                 filters.favOnly
                   ? 'bg-amber-400 text-slate-900 ring-amber-400'
                   : 'bg-white ring-slate-900/10 hover:ring-2 dark:bg-slate-800/60 dark:ring-white/10'
               }`}
             >
-              ★ Solo favoritos
+              <StarIcon filled size={16} className={filters.favOnly ? '' : 'text-amber-400'} />
+              <span aria-hidden="true" className="sm:hidden">
+                Favoritos
+              </span>
+              <span aria-hidden="true" className="hidden sm:inline">
+                Solo favoritos
+              </span>
             </button>
           </div>
           <p className="text-sm text-slate-500 dark:text-slate-400" aria-live="polite">
@@ -106,6 +115,7 @@ export function Home() {
           {skeletons(6)}
         </div>
       )}
+      <BackToTop />
     </section>
   )
 }

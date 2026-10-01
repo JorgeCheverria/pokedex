@@ -37,18 +37,35 @@ export const speciesResponseSchema = z.object({
   evolution_chain: z.object({ url: z.string() }).nullable(),
 })
 
+const evolutionDetailSchema = z.object({
+  trigger: namedResource.nullish(),
+  min_level: z.number().nullish(),
+  item: namedResource.nullish(),
+  held_item: namedResource.nullish(),
+  min_happiness: z.number().nullish(),
+  time_of_day: z.string().nullish(),
+})
+
+export type EvolutionDetailResponse = z.infer<typeof evolutionDetailSchema>
+
 export type ChainLinkResponse = {
   species: z.infer<typeof namedResource>
+  evolution_details?: EvolutionDetailResponse[]
   evolves_to: ChainLinkResponse[]
 }
 
 const chainLinkSchema: z.ZodType<ChainLinkResponse> = z.lazy(() =>
-  z.object({ species: namedResource, evolves_to: z.array(chainLinkSchema) }),
+  z.object({
+    species: namedResource,
+    evolution_details: z.array(evolutionDetailSchema).optional(),
+    evolves_to: z.array(chainLinkSchema),
+  }),
 )
 
 export const evolutionResponseSchema = z.object({ chain: chainLinkSchema })
 
-export const abilityResponseSchema = z.object({
+/** Recursos con nombres localizados (habilidades, objetos…). */
+export const namesResponseSchema = z.object({
   names: z.array(localized({ name: z.string() })),
 })
 

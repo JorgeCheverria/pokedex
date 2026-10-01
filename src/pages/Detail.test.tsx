@@ -15,6 +15,7 @@ vi.mock('../api/pokeapi', async (importOriginal) => {
     fetchEvolutionChain: vi.fn(),
     fetchPokemonIdsByType: vi.fn(),
     fetchAbilityName: vi.fn(),
+    fetchItemName: vi.fn(),
   }
 })
 
@@ -60,8 +61,19 @@ beforeEach(() => {
   vi.mocked(api.fetchEvolutionChain).mockResolvedValue({
     id: 172,
     name: 'pichu',
-    evolvesTo: [{ id: 25, name: 'pikachu', evolvesTo: [{ id: 26, name: 'raichu', evolvesTo: [] }] }],
+    condition: null,
+    evolvesTo: [
+      {
+        id: 25,
+        name: 'pikachu',
+        condition: { kind: 'friendship' },
+        evolvesTo: [
+          { id: 26, name: 'raichu', condition: { kind: 'item', item: 'thunder-stone' }, evolvesTo: [] },
+        ],
+      },
+    ],
   })
+  vi.mocked(api.fetchItemName).mockResolvedValue('Piedra Trueno')
 })
 
 const openPikachu = async () => {
@@ -109,8 +121,10 @@ describe('Detail', () => {
     const panel = screen.getByRole('tabpanel')
 
     const links = await within(panel).findAllByRole('link')
-    expect(links.map((l) => l.textContent)).toEqual(['#172Pichu', '#025Pikachu', '#026Raichu'])
+    expect(links[0]).toHaveTextContent('#172Pichu')
+    expect(links[1]).toHaveTextContent('#025PikachuAmistad')
     expect(links[1]).toHaveAttribute('aria-current', 'page')
+    expect(await within(links[2]).findByText('Piedra Trueno')).toBeInTheDocument()
   })
 
   test('navega al siguiente con la flecha derecha', async () => {
@@ -126,7 +140,7 @@ describe('Detail', () => {
   test('botón shiny cambia el artwork', async () => {
     await openPikachu()
 
-    await userEvent.click(screen.getByRole('button', { name: /Shiny/ }))
+    await userEvent.click(screen.getByRole('button', { name: 'Versión Shiny' }))
 
     expect(screen.getByRole('img', { name: 'Pikachu (shiny)' })).toHaveAttribute('src', 'shiny-25.png')
   })

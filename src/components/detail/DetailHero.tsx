@@ -3,13 +3,12 @@ import type { Pokemon } from '../../api/types'
 import { formatId } from '../../utils/format'
 import { typeInfo } from '../../utils/typeColors'
 import { FavoriteButton } from '../FavoriteButton'
+import { IconButton } from '../IconButton'
+import { SparklesIcon, VolumeIcon } from '../icons'
 import { PokemonImage } from '../PokemonImage'
 import { TypeBadge } from '../TypeBadge'
 
 type Props = { pokemon: Pokemon; name: string; genus?: string }
-
-const iconButton =
-  'rounded-full bg-white/80 px-3 py-1.5 text-sm font-semibold shadow-sm backdrop-blur transition hover:bg-white focus-visible:outline-3 focus-visible:outline-poke-red dark:bg-slate-900/60 dark:hover:bg-slate-900'
 
 export function DetailHero({ pokemon, name, genus }: Props) {
   const [shiny, setShiny] = useState(false)
@@ -22,41 +21,50 @@ export function DetailHero({ pokemon, name, genus }: Props) {
 
   return (
     <header
-      className="relative overflow-hidden rounded-3xl px-4 pt-4 pb-6 text-center"
+      className="relative overflow-hidden rounded-3xl px-4 pt-3 pb-6 text-center"
       style={{ background: `linear-gradient(135deg, ${c1}55, ${c2 ?? c1}22)` }}
     >
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-4 right-2 font-mono text-8xl font-black opacity-10 select-none sm:text-9xl"
-      >
-        {formatId(pokemon.id)}
-      </span>
-      <div className="relative flex justify-end gap-2">
+      <div className="relative z-10 flex justify-end gap-2">
         {pokemon.cry && (
-          <button type="button" onClick={playCry} className={iconButton} aria-label="Escuchar grito">
-            🔊
-          </button>
+          <IconButton variant="glass" label="Escuchar grito" onClick={playCry}>
+            <VolumeIcon />
+          </IconButton>
         )}
         {pokemon.artworkShiny && (
-          <button
-            type="button"
-            onClick={() => setShiny((s) => !s)}
+          <IconButton
+            variant="glass"
+            label="Versión Shiny"
             aria-pressed={shiny}
-            className={iconButton}
+            onClick={() => setShiny((s) => !s)}
+            className={shiny ? 'text-amber-500 ring-2 ring-amber-400' : ''}
           >
-            ✨ Shiny
-          </button>
+            <SparklesIcon />
+          </IconButton>
         )}
-        <FavoriteButton id={pokemon.id} name={name} className="bg-white/80 shadow-sm dark:bg-slate-900/60" />
+        <FavoriteButton
+          id={pokemon.id}
+          name={name}
+          className="bg-white/80 shadow-sm backdrop-blur dark:bg-slate-900/60"
+        />
       </div>
-      <PokemonImage
-        key={src}
-        src={src}
-        alt={`${name}${shiny ? ' (shiny)' : ''}`}
-        className="mx-auto w-56 sm:w-72"
-        eager
-      />
-      <p className="relative font-mono text-slate-500 dark:text-slate-400">{formatId(pokemon.id)}</p>
+      <div className="relative">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 font-mono text-[7rem] leading-none font-black tracking-tighter opacity-[0.05] select-none sm:text-[9rem] dark:opacity-[0.07]"
+        >
+          {formatId(pokemon.id)}
+        </span>
+        <PokemonImage
+          key={src}
+          src={src}
+          alt={`${name}${shiny ? ' (shiny)' : ''}`}
+          className="mx-auto w-56 sm:w-72"
+          eager
+        />
+      </div>
+      <p className="relative font-mono text-sm font-medium text-slate-600 dark:text-slate-300">
+        {formatId(pokemon.id)}
+      </p>
       <h1 className="relative text-3xl font-extrabold tracking-tight sm:text-4xl">{name}</h1>
       {genus && <p className="relative text-sm text-slate-600 dark:text-slate-300">{genus}</p>}
       <div className="relative mt-3 flex justify-center gap-2">

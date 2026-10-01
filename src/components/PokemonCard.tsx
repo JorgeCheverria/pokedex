@@ -47,7 +47,7 @@ export function PokemonCard({ pokemon }: Props) {
       <FavoriteButton
         id={pokemon.id}
         name={name}
-        className="absolute top-1 right-1 transition duration-200 group-hover:-translate-y-0.5"
+        className="absolute top-0.5 right-0.5 transition duration-200 group-hover:-translate-y-0.5"
       />
     </div>
   )
